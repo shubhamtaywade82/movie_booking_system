@@ -1,13 +1,12 @@
 # frozen_string_literal: true
 
 RSpec.describe MovieBookingSystem::Booking do # rubocop:disable RSpec/SpecFilePathFormat
-  let(:user) { MovieBookingSystem::User.create(name: "John Doe", email: "john@example.com") }
+  let(:user) { MovieBookingSystem::User.create(name: "John Doe") }
   let(:movie) { MovieBookingSystem::Movie.create(title: "Inception", genre: "Sci-Fi", duration: 148) }
   let(:show) do
-    MovieBookingSystem::Show.create(movie_id: movie.id, show_time: Time.parse("20:00"), total_capacity: 100,
-                                    available_seats: 100)
+    MovieBookingSystem::Show.create(movie_id: movie.id, show_time: Time.parse("20:00"), total_capacity: 21)
   end
-  let(:attributes) { { user_id: user.id, show_id: show.id, seats: 2 } }
+  let(:attributes) { { user_id: user.id, show_id: show.id, seats: 2, booked_seats: "A1,A2" } }
 
   describe ".create" do
     it "creates a new instance and saves it to the CSV" do
@@ -33,7 +32,7 @@ RSpec.describe MovieBookingSystem::Booking do # rubocop:disable RSpec/SpecFilePa
   describe ".all" do
     it "returns all instances" do
       described_class.create(attributes)
-      described_class.create(user_id: user.id, show_id: show.id, seats: 4)
+      described_class.create(user_id: user.id, show_id: show.id, seats: 4, booked_seats: "B1,B2,B3,B4")
       expect(described_class.all.size).to eq(2)
     end
 
@@ -45,7 +44,7 @@ RSpec.describe MovieBookingSystem::Booking do # rubocop:disable RSpec/SpecFilePa
   describe ".where" do
     before do
       described_class.create(attributes)
-      described_class.create(user_id: user.id, show_id: show.id, seats: 4)
+      described_class.create(user_id: user.id, show_id: show.id, seats: 4, booked_seats: "B1,B2,B3,B4")
     end
 
     it "filters instances based on conditions" do
@@ -88,6 +87,43 @@ RSpec.describe MovieBookingSystem::Booking do # rubocop:disable RSpec/SpecFilePa
       booking = described_class.create(attributes)
       booking.destroy
       expect(described_class.all).to eq([])
+    end
+  end
+
+  describe "validations" do
+    it "validates presence of user_id" do
+      invalid_attributes = attributes.merge(user_id: nil)
+      booking = described_class.new(invalid_attributes)
+      expect(booking).not_to be_valid
+      expect(booking.errors).to include("user_id cannot be blank")
+    end
+
+    it "validates presence of show_id" do
+      invalid_attributes = attributes.merge(show_id: nil)
+      booking = described_class.new(invalid_attributes)
+      expect(booking).not_to be_valid
+      expect(booking.errors).to include("show_id cannot be blank")
+    end
+
+    it "validates presence of seats" do
+      invalid_attributes = attributes.merge(seats: nil)
+      booking = described_class.new(invalid_attributes)
+      expect(booking).not_to be_valid
+      expect(booking.errors).to include("seats cannot be blank")
+    end
+
+    it "validates presence of booked_seats" do
+      invalid_attributes = attributes.merge(booked_seats: nil)
+      booking = described_class.new(invalid_attributes)
+      expect(booking).not_to be_valid
+      expect(booking.errors).to include("booked_seats cannot be blank")
+    end
+
+    it "validates numericality of seats" do
+      invalid_attributes = attributes.merge(seats: "two")
+      booking = described_class.new(invalid_attributes)
+      expect(booking).not_to be_valid
+      expect(booking.errors).to include("seats must be an integer")
     end
   end
 end

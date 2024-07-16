@@ -3,7 +3,7 @@
 require "tty-prompt"
 
 module MovieBookingSystem
-  class CLI
+  class CLI # rubocop:disable Metrics/ClassLength
     def initialize
       @prompt = TTY::Prompt.new
       @admin_service = AdminService.new
@@ -24,7 +24,7 @@ module MovieBookingSystem
 
     private
 
-    def admin_menu
+    def admin_menu # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
       choices = {
         "List Movies" => -> { list_movies },
         "Add Movie" => -> { add_movie },
@@ -92,7 +92,7 @@ module MovieBookingSystem
       shows = @admin_service.list_shows_by_movie(movie_id)
       if shows.any?
         shows.each do |show|
-          puts "#{show.id}: Movie ID #{show.movie_id} at #{show.show_time} - Capacity: #{show.total_capacity}, Available Seats: #{show.available_seats}"
+          puts "#{show.id}: Movie ID #{show.movie_id} at #{show.show_time} - Capacity: #{show.total_capacity}, Available Seats: #{show.available_seats}" # rubocop:disable Layout/LineLength
         end
       else
         puts "No shows available for this movie."
@@ -114,15 +114,15 @@ module MovieBookingSystem
       return unless movie_id
 
       bookings = @admin_service.show_bookings_for_movie_show(movie_id)
-      bookings.each do |show, bookings|
-        puts "Show ID: #{show.id}, Show Time: #{show.show_time}, Total Capacity: #{show.total_capacity}, Available Seats: #{show.available_seats}"
+      bookings.each do |show, bookings| # rubocop:disable Lint/ShadowingOuterLocalVariable
+        puts "Show ID: #{show.id}, Show Time: #{show.show_time}, Total Capacity: #{show.total_capacity}, Available Seats: #{show.available_seats}" # rubocop:disable Layout/LineLength
         bookings.each do |booking|
-          puts "  Booking ID: #{booking.id}, User ID: #{booking.user_id}, Seats: #{booking.seats}, Booked Seats: #{booking.booked_seats}"
+          puts "  Booking ID: #{booking.id}, User ID: #{booking.user_id}, Seats: #{booking.seats}, Booked Seats: #{booking.booked_seats}" # rubocop:disable Layout/LineLength
         end
       end
     end
 
-    def make_booking
+    def make_booking # rubocop:disable Metrics/MethodLength
       user_id = @prompt.ask("User ID:", convert: :int)
       movie_id = select_movie
       return unless movie_id
@@ -139,7 +139,7 @@ module MovieBookingSystem
       end
     end
 
-    def cancel_booking
+    def cancel_booking # rubocop:disable Metrics/MethodLength
       bookings = @booking_service.list_bookings
       if bookings.any?
         booking_id = @prompt.select(

@@ -27,7 +27,7 @@ module MovieBookingSystem
       self.available_seats = seats.join(",")
     end
 
-    def book_seats(seat_count)
+    def book_seats(seat_count) # rubocop:disable Metrics/MethodLength
       seats = available_seats.split(",")
       return nil if seats.size < seat_count
 
