@@ -2,6 +2,7 @@
 
 require "pry"
 require_relative "movie_booking_system/version"
+require_relative "movie_booking_system/ext/string"
 require_relative "movie_booking_system/orm/csv_handler"
 
 module MovieBookingSystem
