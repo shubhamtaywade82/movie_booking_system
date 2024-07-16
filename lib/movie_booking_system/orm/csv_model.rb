@@ -3,6 +3,7 @@
 module MovieBookingSystem
   class CSVModel
     include Validation
+    include Association
     attr_reader :attributes
 
     class << self
@@ -100,7 +101,7 @@ module MovieBookingSystem
         self.class.csv_handler.write_row(attributes)
       end
       reload_attributes
-      true
+      self
     end
 
     def reload_attributes
