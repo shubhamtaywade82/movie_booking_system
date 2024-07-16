@@ -5,7 +5,6 @@ RSpec.describe MovieBookingSystem::CSVModel do # rubocop:disable RSpec/SpecFileP
   let(:attributes) { { title: "Inception", genre: "Sci-Fi", duration: 148 } }
 
   class TestModel < described_class # rubocop:disable Lint/ConstantDefinitionInBlock,RSpec/LeakyConstantDeclaration
-    field :id
     field :title
     field :genre
     field :duration, type: :integer
