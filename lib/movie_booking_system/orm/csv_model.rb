@@ -34,7 +34,7 @@ module MovieBookingSystem
 
       def csv_filename(filename = nil)
         @csv_filename = filename if filename
-        @csv_filename ||= "data/#{name.downcase.pluralize}.csv"
+        @csv_filename ||= "data/#{name.split("::").last.downcase.pluralize}.csv"
       end
 
       def file_path
