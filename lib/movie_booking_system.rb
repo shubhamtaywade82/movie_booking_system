@@ -8,6 +8,9 @@ require_relative "movie_booking_system/concerns/validation"
 require_relative "movie_booking_system/orm/csv_handler"
 require_relative "movie_booking_system/orm/csv_model"
 require_relative "movie_booking_system/model/movie"
+require_relative "movie_booking_system/model/show"
+require_relative "movie_booking_system/model/booking"
+require_relative "movie_booking_system/model/user"
 
 module MovieBookingSystem
   class Error < StandardError; end

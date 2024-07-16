@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module MovieBookingSystem
-  class CSVModel
+  class CSVModel # rubocop:disable Metrics/ClassLength
     include Validation
     include Association
     attr_reader :attributes
@@ -9,7 +9,7 @@ module MovieBookingSystem
     class << self
       attr_reader :fields, :fields_options
 
-      def field(name, options = {})
+      def field(name, options = {}) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
         @fields ||= []
         @fields << name
         attr_accessor name
@@ -63,7 +63,7 @@ module MovieBookingSystem
         end
       end
 
-      def convert_value(value, type)
+      def convert_value(value, type) # rubocop:disable Metrics/MethodLength
         case type
         when :integer
           value.to_s.match?(/^\d+$/) ? value.to_i : value
@@ -125,7 +125,7 @@ module MovieBookingSystem
     def self.where(conditions)
       csv_handler.load_all.select do |row|
         conditions.all? { |key, value| row[key] == value }
-      end.map { |row| new(row) }
+      end.map { |row| new(row) } # rubocop:disable Style/MultilineBlockChain
     end
 
     def update(new_attributes)

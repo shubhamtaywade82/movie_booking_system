@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe MovieBookingSystem::Validation do
+RSpec.describe MovieBookingSystem::Validation do # rubocop:disable RSpec/SpecFilePathFormat
   let(:file_path) { "spec/tmp/test_validation.csv" }
 
   class UserTestModel < MovieBookingSystem::CSVModel # rubocop:disable RSpec/LeakyConstantDeclaration,Lint/ConstantDefinitionInBlock

@@ -71,7 +71,7 @@ module MovieBookingSystem
       end
     end
 
-    def validate_type
+    def validate_type # rubocop:disable Metrics/CyclomaticComplexity,Metrics/MethodLength
       self.class.typed_fields.each do |field, type|
         value = send(field)
         case type
