@@ -29,7 +29,7 @@ module MovieBookingSystem
         "Exit" => -> { exit }
       }
 
-      display_menu("Choose an action:", choices)
+      display_menu("Welcome to the Movie Booking System. Please choose an action:", choices)
     end
 
     def admin_menu # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
@@ -44,7 +44,7 @@ module MovieBookingSystem
         "Back" => -> { main_menu }
       }
 
-      display_menu("Admin Menu:", choices)
+      display_menu("Admin Menu: Please choose an action:", choices)
     end
 
     def booking_menu
@@ -54,7 +54,7 @@ module MovieBookingSystem
         "Back" => -> { main_menu }
       }
 
-      display_menu("Booking Menu:", choices)
+      display_menu("Booking Menu: Please choose an action:", choices)
     end
 
     def display_menu(prompt_text, choices)
@@ -72,7 +72,11 @@ module MovieBookingSystem
 
     def list_movies
       movies = @admin_service.list_movies
-      display_movies_table(movies) if movies.any?
+      if movies.any?
+        display_movies_table(movies)
+      else
+        puts "No movies available."
+      end
       print_separator
     end
 
@@ -107,7 +111,11 @@ module MovieBookingSystem
       return unless movie_id
 
       shows = @admin_service.list_shows_by_movie(movie_id)
-      display_shows_table(shows) if shows.any?
+      if shows.any?
+        display_shows_table(shows)
+      else
+        puts "No shows available for this movie."
+      end
       print_separator
     end
 
@@ -126,7 +134,11 @@ module MovieBookingSystem
       return unless movie_id
 
       bookings_by_show = @admin_service.show_bookings_for_movie_show(movie_id)
-      display_bookings_by_show(bookings_by_show)
+      if bookings_by_show.any?
+        display_bookings_by_show(bookings_by_show)
+      else
+        puts "No bookings available for shows of this movie."
+      end
       print_separator
     end
 
@@ -152,7 +164,7 @@ module MovieBookingSystem
 
     def select_movie
       movies = @admin_service.list_movies
-      return @prompt.select("Select a movie:", format_movies_for_prompt(movies)) if movies.any?
+      return @prompt.select("Select a movie from the list:", format_movies_for_prompt(movies)) if movies.any?
 
       puts "No movies available."
       print_separator
@@ -161,7 +173,7 @@ module MovieBookingSystem
 
     def select_show(movie_id)
       shows = @admin_service.list_shows_by_movie(movie_id)
-      return @prompt.select("Select a show:", format_shows_for_prompt(shows)) if shows.any?
+      return @prompt.select("Select a show from the list:", format_shows_for_prompt(shows)) if shows.any?
 
       puts "No shows available for this movie."
       print_separator
@@ -169,27 +181,31 @@ module MovieBookingSystem
     end
 
     def collect_movie_attributes
-      title = @prompt.ask("Title:")
-      genre = @prompt.ask("Genre:")
-      duration = @prompt.ask("Duration (mins):", convert: :int)
+      title = @prompt.ask("Enter the movie title:")
+      genre = @prompt.ask("Enter the movie genre:")
+      duration = @prompt.ask("Enter the movie duration (in minutes):", convert: :int)
       { title: title, genre: genre, duration: duration }
     end
 
     def collect_show_attributes
-      show_time = @prompt.ask("Show Time (HH:MM):", convert: :time)
-      total_capacity = @prompt.ask("Total Capacity:", convert: :int)
+      show_time = @prompt.ask("Enter the show time (HH:MM format):")
+      unless valid_time_format?(show_time)
+        puts "Invalid time format. Please enter the time in HH:MM format."
+        return
+      end
+      total_capacity = @prompt.ask("Enter the total capacity for the show:", convert: :int)
       { show_time: show_time, total_capacity: total_capacity }
     end
 
     def collect_booking_details
-      user_id = @prompt.ask("User ID:", convert: :int)
+      user_id = @prompt.ask("Enter your user ID:", convert: :int)
       movie_id = select_movie
       return [nil, nil, nil] unless movie_id
 
       show_id = select_show(movie_id)
       return [nil, nil, nil] unless show_id
 
-      seats = @prompt.ask("Number of seats:", convert: :int)
+      seats = @prompt.ask("Enter the number of seats to book:", convert: :int)
       [user_id, show_id, seats]
     end
 
@@ -233,7 +249,9 @@ module MovieBookingSystem
     end
 
     def display_booking_details(booking)
-      puts "  Booking ID: #{booking.id}, User ID: #{booking.user_id}, Seats: #{booking.seats}, Booked Seats: #{booking.booked_seats}" # rubocop:disable Layout/LineLength
+      table = TTY::Table.new(header: ["Booking ID", "User ID", "Seats", "Booked Seats"],
+                             rows: [[booking.id, booking.user_id, booking.seats, booking.booked_seats]])
+      puts table.render(:unicode)
     end
 
     def format_movies_for_prompt(movies)
@@ -242,6 +260,10 @@ module MovieBookingSystem
 
     def format_shows_for_prompt(shows)
       shows.map { |s| { name: "#{s.show_time} (#{s.id})", value: s.id } }
+    end
+
+    def valid_time_format?(time_string)
+      !!(time_string =~ /^([01]\d|2[0-3]):([0-5]\d)$/)
     end
   end
 end
