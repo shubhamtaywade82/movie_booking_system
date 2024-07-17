@@ -4,11 +4,14 @@ require "tty-prompt"
 require "tty-table"
 
 module MovieBookingSystem
-  class CLI # rubocop:disable Metrics/ClassLength
+  class CLI
+    SEPARATOR = "-----------------------------"
+
     def initialize
       @prompt = TTY::Prompt.new
       @admin_service = AdminService.new
       @booking_service = BookingService.new
+      @last_action_was_separator = false
     end
 
     def start
@@ -19,13 +22,22 @@ module MovieBookingSystem
           "Exit" => -> { exit }
         }
 
+        print_separator
         @prompt.select("Choose an action:", choices)
+        @last_action_was_separator = false
       end
     end
 
     private
 
-    def admin_menu # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
+    def print_separator
+      return if @last_action_was_separator
+
+      puts SEPARATOR
+      @last_action_was_separator = true
+    end
+
+    def admin_menu
       choices = {
         "List Movies" => -> { list_movies },
         "Add Movie" => -> { add_movie },
@@ -37,7 +49,9 @@ module MovieBookingSystem
         "Back" => -> { start }
       }
 
+      print_separator
       @prompt.select("Admin Menu:", choices)
+      @last_action_was_separator = false
     end
 
     def booking_menu
@@ -47,7 +61,9 @@ module MovieBookingSystem
         "Back" => -> { start }
       }
 
+      print_separator
       @prompt.select("Booking Menu:", choices)
+      @last_action_was_separator = false
     end
 
     def list_movies
@@ -60,6 +76,7 @@ module MovieBookingSystem
       else
         puts "No movies available."
       end
+      print_separator
     end
 
     def add_movie
@@ -68,6 +85,7 @@ module MovieBookingSystem
       duration = @prompt.ask("Duration (mins):", convert: :int)
       @admin_service.add_movie(title: title, genre: genre, duration: duration)
       puts "Movie added successfully."
+      print_separator
     end
 
     def update_movie
@@ -79,6 +97,7 @@ module MovieBookingSystem
       duration = @prompt.ask("Duration (mins):", convert: :int)
       @admin_service.update_movie(movie_id, title: title, genre: genre, duration: duration)
       puts "Movie updated successfully."
+      print_separator
     end
 
     def delete_movie
@@ -87,9 +106,10 @@ module MovieBookingSystem
 
       @admin_service.delete_movie(movie_id)
       puts "Movie deleted successfully."
+      print_separator
     end
 
-    def list_shows # rubocop:disable Metrics/MethodLength
+    def list_shows
       movie_id = select_movie
       return unless movie_id
 
@@ -103,6 +123,7 @@ module MovieBookingSystem
       else
         puts "No shows available for this movie."
       end
+      print_separator
     end
 
     def add_show
@@ -113,24 +134,26 @@ module MovieBookingSystem
       total_capacity = @prompt.ask("Total Capacity:", convert: :int)
       @admin_service.add_show(movie_id, show_time: show_time, total_capacity: total_capacity)
       puts "Show added successfully."
+      print_separator
     end
 
-    def show_bookings # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
+    def show_bookings
       movie_id = select_movie
       return unless movie_id
 
       bookings = @admin_service.show_bookings_for_movie_show(movie_id)
-      bookings.each do |show, bookings| # rubocop:disable Lint/ShadowingOuterLocalVariable
+      bookings.each do |show, bookings|
         table = TTY::Table.new(header: ["Show ID", "Show Time", "Total Capacity", "Available Seats"],
                                rows: [[show.id, show.show_time, show.total_capacity, show.available_seats]])
         puts table.render(:unicode)
         bookings.each do |booking|
-          puts "  Booking ID: #{booking.id}, User ID: #{booking.user_id}, Seats: #{booking.seats}, Booked Seats: #{booking.booked_seats}" # rubocop:disable Layout/LineLength
+          puts "  Booking ID: #{booking.id}, User ID: #{booking.user_id}, Seats: #{booking.seats}, Booked Seats: #{booking.booked_seats}"
         end
       end
+      print_separator
     end
 
-    def make_booking # rubocop:disable Metrics/MethodLength
+    def make_booking
       user_id = @prompt.ask("User ID:", convert: :int)
       movie_id = select_movie
       return unless movie_id
@@ -145,9 +168,10 @@ module MovieBookingSystem
       else
         puts "Booking failed. Please check availability and try again."
       end
+      print_separator
     end
 
-    def cancel_booking # rubocop:disable Metrics/MethodLength
+    def cancel_booking
       bookings = @booking_service.list_bookings
       if bookings.any?
         booking_id = @prompt.select(
@@ -164,6 +188,7 @@ module MovieBookingSystem
       else
         puts "No bookings available to cancel."
       end
+      print_separator
     end
 
     def select_movie
@@ -172,6 +197,7 @@ module MovieBookingSystem
         @prompt.select("Select a movie:", movies.map { |m| { name: "#{m.title} (#{m.id})", value: m.id } })
       else
         puts "No movies available."
+        print_separator
         nil
       end
     end
@@ -182,6 +208,7 @@ module MovieBookingSystem
         @prompt.select("Select a show:", shows.map { |s| { name: "#{s.show_time} (#{s.id})", value: s.id } })
       else
         puts "No shows available for this movie."
+        print_separator
         nil
       end
     end
