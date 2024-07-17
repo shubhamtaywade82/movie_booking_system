@@ -4,7 +4,7 @@ require "tty-prompt"
 require "tty-table"
 
 module MovieBookingSystem
-  class CLI
+  class CLI # rubocop:disable Metrics/ClassLength
     SEPARATOR = "-----------------------------"
 
     def initialize
@@ -16,28 +16,23 @@ module MovieBookingSystem
 
     def start
       loop do
-        choices = {
-          "Admin Menu" => -> { admin_menu },
-          "Booking Menu" => -> { booking_menu },
-          "Exit" => -> { exit }
-        }
-
-        print_separator
-        @prompt.select("Choose an action:", choices)
-        @last_action_was_separator = false
+        main_menu
       end
     end
 
     private
 
-    def print_separator
-      return if @last_action_was_separator
+    def main_menu
+      choices = {
+        "Admin Menu" => -> { admin_menu },
+        "Booking Menu" => -> { booking_menu },
+        "Exit" => -> { exit }
+      }
 
-      puts SEPARATOR
-      @last_action_was_separator = true
+      display_menu("Choose an action:", choices)
     end
 
-    def admin_menu
+    def admin_menu # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
       choices = {
         "List Movies" => -> { list_movies },
         "Add Movie" => -> { add_movie },
@@ -46,44 +41,44 @@ module MovieBookingSystem
         "List Shows (Select Movie)" => -> { list_shows },
         "Add Show (Select Movie)" => -> { add_show },
         "Show Bookings for Movie Show" => -> { show_bookings },
-        "Back" => -> { start }
+        "Back" => -> { main_menu }
       }
 
-      print_separator
-      @prompt.select("Admin Menu:", choices)
-      @last_action_was_separator = false
+      display_menu("Admin Menu:", choices)
     end
 
     def booking_menu
       choices = {
         "Make Booking" => -> { make_booking },
         "Cancel Booking" => -> { cancel_booking },
-        "Back" => -> { start }
+        "Back" => -> { main_menu }
       }
 
+      display_menu("Booking Menu:", choices)
+    end
+
+    def display_menu(prompt_text, choices)
       print_separator
-      @prompt.select("Booking Menu:", choices)
+      @prompt.select(prompt_text, choices)
       @last_action_was_separator = false
+    end
+
+    def print_separator
+      return if @last_action_was_separator
+
+      puts SEPARATOR
+      @last_action_was_separator = true
     end
 
     def list_movies
       movies = @admin_service.list_movies
-      if movies.any?
-        table = TTY::Table.new(header: %w[ID Title Genre Duration], rows: movies.map do |m|
-                                                                            [m.id, m.title, m.genre, m.duration]
-                                                                          end)
-        puts table.render(:unicode)
-      else
-        puts "No movies available."
-      end
+      display_movies_table(movies) if movies.any?
       print_separator
     end
 
     def add_movie
-      title = @prompt.ask("Title:")
-      genre = @prompt.ask("Genre:")
-      duration = @prompt.ask("Duration (mins):", convert: :int)
-      @admin_service.add_movie(title: title, genre: genre, duration: duration)
+      movie_attributes = collect_movie_attributes
+      @admin_service.add_movie(movie_attributes)
       puts "Movie added successfully."
       print_separator
     end
@@ -92,10 +87,8 @@ module MovieBookingSystem
       movie_id = select_movie
       return unless movie_id
 
-      title = @prompt.ask("Title:")
-      genre = @prompt.ask("Genre:")
-      duration = @prompt.ask("Duration (mins):", convert: :int)
-      @admin_service.update_movie(movie_id, title: title, genre: genre, duration: duration)
+      movie_attributes = collect_movie_attributes
+      @admin_service.update_movie(movie_id, movie_attributes)
       puts "Movie updated successfully."
       print_separator
     end
@@ -114,15 +107,7 @@ module MovieBookingSystem
       return unless movie_id
 
       shows = @admin_service.list_shows_by_movie(movie_id)
-      if shows.any?
-        table = TTY::Table.new(header: ["ID", "Movie ID", "Show Time", "Capacity", "Available Seats"],
-                               rows: shows.map do |s|
-                                       [s.id, s.movie_id, s.show_time, s.total_capacity, s.available_seats]
-                                     end)
-        puts table.render(:unicode)
-      else
-        puts "No shows available for this movie."
-      end
+      display_shows_table(shows) if shows.any?
       print_separator
     end
 
@@ -130,9 +115,8 @@ module MovieBookingSystem
       movie_id = select_movie
       return unless movie_id
 
-      show_time = @prompt.ask("Show Time (HH:MM):", convert: :time)
-      total_capacity = @prompt.ask("Total Capacity:", convert: :int)
-      @admin_service.add_show(movie_id, show_time: show_time, total_capacity: total_capacity)
+      show_attributes = collect_show_attributes
+      @admin_service.add_show(movie_id, show_attributes)
       puts "Show added successfully."
       print_separator
     end
@@ -141,50 +125,25 @@ module MovieBookingSystem
       movie_id = select_movie
       return unless movie_id
 
-      bookings = @admin_service.show_bookings_for_movie_show(movie_id)
-      bookings.each do |show, bookings|
-        table = TTY::Table.new(header: ["Show ID", "Show Time", "Total Capacity", "Available Seats"],
-                               rows: [[show.id, show.show_time, show.total_capacity, show.available_seats]])
-        puts table.render(:unicode)
-        bookings.each do |booking|
-          puts "  Booking ID: #{booking.id}, User ID: #{booking.user_id}, Seats: #{booking.seats}, Booked Seats: #{booking.booked_seats}"
-        end
-      end
+      bookings_by_show = @admin_service.show_bookings_for_movie_show(movie_id)
+      display_bookings_by_show(bookings_by_show)
       print_separator
     end
 
     def make_booking
-      user_id = @prompt.ask("User ID:", convert: :int)
-      movie_id = select_movie
-      return unless movie_id
+      user_id, show_id, seats = collect_booking_details
+      return unless user_id && show_id && seats
 
-      show_id = select_show(movie_id)
-      return unless show_id
-
-      seats = @prompt.ask("Number of seats:", convert: :int)
       booking = @booking_service.create_booking(user_id, show_id, seats)
-      if booking
-        puts "Booking created successfully. Seats: #{booking.booked_seats}"
-      else
-        puts "Booking failed. Please check availability and try again."
-      end
+      puts booking ? "Booking created successfully. Seats: #{booking.booked_seats}" : "Booking failed. Please check availability and try again." # rubocop:disable Layout/LineLength
       print_separator
     end
 
     def cancel_booking
       bookings = @booking_service.list_bookings
       if bookings.any?
-        booking_id = @prompt.select(
-          "Select a booking to cancel:",
-          bookings.map do |b|
-            { name: "Booking ##{b.id}: Show ID #{b.show_id}, Seats #{b.seats}", value: b.id }
-          end
-        )
-        if @booking_service.cancel_booking(booking_id)
-          puts "Booking cancelled successfully."
-        else
-          puts "Cancellation failed. Please check the booking ID and try again."
-        end
+        booking_id = select_booking(bookings)
+        cancel_selected_booking(booking_id)
       else
         puts "No bookings available to cancel."
       end
@@ -193,24 +152,96 @@ module MovieBookingSystem
 
     def select_movie
       movies = @admin_service.list_movies
-      if movies.any?
-        @prompt.select("Select a movie:", movies.map { |m| { name: "#{m.title} (#{m.id})", value: m.id } })
-      else
-        puts "No movies available."
-        print_separator
-        nil
-      end
+      return @prompt.select("Select a movie:", format_movies_for_prompt(movies)) if movies.any?
+
+      puts "No movies available."
+      print_separator
+      nil
     end
 
     def select_show(movie_id)
       shows = @admin_service.list_shows_by_movie(movie_id)
-      if shows.any?
-        @prompt.select("Select a show:", shows.map { |s| { name: "#{s.show_time} (#{s.id})", value: s.id } })
+      return @prompt.select("Select a show:", format_shows_for_prompt(shows)) if shows.any?
+
+      puts "No shows available for this movie."
+      print_separator
+      nil
+    end
+
+    def collect_movie_attributes
+      title = @prompt.ask("Title:")
+      genre = @prompt.ask("Genre:")
+      duration = @prompt.ask("Duration (mins):", convert: :int)
+      { title: title, genre: genre, duration: duration }
+    end
+
+    def collect_show_attributes
+      show_time = @prompt.ask("Show Time (HH:MM):", convert: :time)
+      total_capacity = @prompt.ask("Total Capacity:", convert: :int)
+      { show_time: show_time, total_capacity: total_capacity }
+    end
+
+    def collect_booking_details
+      user_id = @prompt.ask("User ID:", convert: :int)
+      movie_id = select_movie
+      return [nil, nil, nil] unless movie_id
+
+      show_id = select_show(movie_id)
+      return [nil, nil, nil] unless show_id
+
+      seats = @prompt.ask("Number of seats:", convert: :int)
+      [user_id, show_id, seats]
+    end
+
+    def select_booking(bookings)
+      @prompt.select(
+        "Select a booking to cancel:",
+        bookings.map { |b| { name: "Booking ##{b.id}: Show ID #{b.show_id}, Seats #{b.seats}", value: b.id } }
+      )
+    end
+
+    def cancel_selected_booking(booking_id)
+      if @booking_service.cancel_booking(booking_id)
+        puts "Booking cancelled successfully."
       else
-        puts "No shows available for this movie."
-        print_separator
-        nil
+        puts "Cancellation failed. Please check the booking ID and try again."
       end
+    end
+
+    def display_movies_table(movies)
+      table = TTY::Table.new(header: %w[ID Title Genre Duration], rows: movies.map do |m|
+                                                                          [m.id, m.title, m.genre, m.duration]
+                                                                        end)
+      puts table.render(:unicode)
+    end
+
+    def display_shows_table(shows)
+      table = TTY::Table.new(header: ["ID", "Movie ID", "Show Time", "Capacity", "Available Seats"],
+                             rows: shows.map do |s|
+                                     [s.id, s.movie_id, s.show_time, s.total_capacity, s.available_seats]
+                                   end)
+      puts table.render(:unicode)
+    end
+
+    def display_bookings_by_show(bookings_by_show)
+      bookings_by_show.each do |show, bookings|
+        table = TTY::Table.new(header: ["Show ID", "Show Time", "Total Capacity", "Available Seats"],
+                               rows: [[show.id, show.show_time, show.total_capacity, show.available_seats]])
+        puts table.render(:unicode)
+        bookings.each { |booking| display_booking_details(booking) }
+      end
+    end
+
+    def display_booking_details(booking)
+      puts "  Booking ID: #{booking.id}, User ID: #{booking.user_id}, Seats: #{booking.seats}, Booked Seats: #{booking.booked_seats}" # rubocop:disable Layout/LineLength
+    end
+
+    def format_movies_for_prompt(movies)
+      movies.map { |m| { name: "#{m.title} (#{m.id})", value: m.id } }
+    end
+
+    def format_shows_for_prompt(shows)
+      shows.map { |s| { name: "#{s.show_time} (#{s.id})", value: s.id } }
     end
   end
 end
