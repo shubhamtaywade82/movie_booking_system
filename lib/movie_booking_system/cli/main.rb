@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "tty-prompt"
+require "tty-table"
 
 module MovieBookingSystem
   class CLI # rubocop:disable Metrics/ClassLength
@@ -52,7 +53,10 @@ module MovieBookingSystem
     def list_movies
       movies = @admin_service.list_movies
       if movies.any?
-        movies.each { |movie| puts "#{movie.id}: #{movie.title} (#{movie.genre}) - Duration: #{movie.duration} mins" }
+        table = TTY::Table.new(header: %w[ID Title Genre Duration], rows: movies.map do |m|
+                                                                            [m.id, m.title, m.genre, m.duration]
+                                                                          end)
+        puts table.render(:unicode)
       else
         puts "No movies available."
       end
@@ -85,15 +89,17 @@ module MovieBookingSystem
       puts "Movie deleted successfully."
     end
 
-    def list_shows
+    def list_shows # rubocop:disable Metrics/MethodLength
       movie_id = select_movie
       return unless movie_id
 
       shows = @admin_service.list_shows_by_movie(movie_id)
       if shows.any?
-        shows.each do |show|
-          puts "#{show.id}: Movie ID #{show.movie_id} at #{show.show_time} - Capacity: #{show.total_capacity}, Available Seats: #{show.available_seats}" # rubocop:disable Layout/LineLength
-        end
+        table = TTY::Table.new(header: ["ID", "Movie ID", "Show Time", "Capacity", "Available Seats"],
+                               rows: shows.map do |s|
+                                       [s.id, s.movie_id, s.show_time, s.total_capacity, s.available_seats]
+                                     end)
+        puts table.render(:unicode)
       else
         puts "No shows available for this movie."
       end
@@ -109,13 +115,15 @@ module MovieBookingSystem
       puts "Show added successfully."
     end
 
-    def show_bookings
+    def show_bookings # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
       movie_id = select_movie
       return unless movie_id
 
       bookings = @admin_service.show_bookings_for_movie_show(movie_id)
       bookings.each do |show, bookings| # rubocop:disable Lint/ShadowingOuterLocalVariable
-        puts "Show ID: #{show.id}, Show Time: #{show.show_time}, Total Capacity: #{show.total_capacity}, Available Seats: #{show.available_seats}" # rubocop:disable Layout/LineLength
+        table = TTY::Table.new(header: ["Show ID", "Show Time", "Total Capacity", "Available Seats"],
+                               rows: [[show.id, show.show_time, show.total_capacity, show.available_seats]])
+        puts table.render(:unicode)
         bookings.each do |booking|
           puts "  Booking ID: #{booking.id}, User ID: #{booking.user_id}, Seats: #{booking.seats}, Booked Seats: #{booking.booked_seats}" # rubocop:disable Layout/LineLength
         end
