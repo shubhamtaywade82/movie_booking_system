@@ -252,13 +252,21 @@ module MovieBookingSystem
     end
 
     def display_movies_table(movies)
-      table = TTY::Table.new(header: %w[ID Title Genre Duration], rows: movies.map { |m| [m.id, m.title, m.genre, m.duration] })
+      table = TTY::Table.new(
+        header: %w[ID Title Genre Duration],
+        rows: movies.map do |m|
+                [m.id, m.title,
+                 m.genre, m.duration]
+              end
+      )
       puts table.render(:unicode)
     end
 
     def display_shows_table(shows)
       table = TTY::Table.new(header: ["ID", "Movie ID", "Show Time", "Capacity", "Available Seats"],
-                             rows: shows.map { |s| [s.id, s.movie_id, s.show_time, s.total_capacity, s.available_seats] })
+                             rows: shows.map do |s|
+                                     [s.id, s.movie_id, s.show_time, s.total_capacity, s.available_seats]
+                                   end)
       puts table.render(:unicode)
     end
 
