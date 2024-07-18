@@ -6,14 +6,23 @@ module MovieBookingSystem
       @movie_class = Movie
       @show_class = Show
       @booking_class = Booking
+      @user_class = User
     end
 
     def add_movie(attributes)
       @movie_class.create(attributes)
     end
 
+    def create_user(attributes)
+      @user_class.create(attributes)
+    end
+
     def list_movies
       @movie_class.all
+    end
+
+    def list_users
+      @user_class.all
     end
 
     def update_movie(id, attributes)

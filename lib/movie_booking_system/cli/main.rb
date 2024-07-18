@@ -143,8 +143,11 @@ module MovieBookingSystem
     end
 
     def make_booking
-      user_id, show_id, seats = collect_booking_details
-      return unless user_id && show_id && seats
+      user_id = select_or_create_user
+      return unless user_id
+
+      show_id, seats = collect_booking_details
+      return unless show_id && seats
 
       booking = @booking_service.create_booking(user_id, show_id, seats)
       puts booking ? "Booking created successfully. Seats: #{booking.booked_seats}" : "Booking failed. Please check availability and try again." # rubocop:disable Layout/LineLength
@@ -198,15 +201,14 @@ module MovieBookingSystem
     end
 
     def collect_booking_details
-      user_id = @prompt.ask("Enter your user ID:", convert: :int)
       movie_id = select_movie
-      return [nil, nil, nil] unless movie_id
+      return [nil, nil] unless movie_id
 
       show_id = select_show(movie_id)
-      return [nil, nil, nil] unless show_id
+      return [nil, nil] unless show_id
 
       seats = @prompt.ask("Enter the number of seats to book:", convert: :int)
-      [user_id, show_id, seats]
+      [show_id, seats]
     end
 
     def select_booking(bookings)
@@ -224,18 +226,39 @@ module MovieBookingSystem
       end
     end
 
+    def select_or_create_user
+      choices = {
+        "Choose an existing user" => -> { select_user },
+        "Create a new user" => -> { create_user }
+      }
+
+      @prompt.select("Do you want to:", choices)
+    end
+
+    def select_user
+      users = @admin_service.list_users
+      return @prompt.select("Select a user from the list:", format_users_for_prompt(users)) if users.any?
+
+      puts "No users available."
+      print_separator
+      nil
+    end
+
+    def create_user
+      user_name = @prompt.ask("Enter the user's name:")
+      user = @admin_service.create_user(name: user_name)
+      puts "User created successfully." if user
+      user&.id
+    end
+
     def display_movies_table(movies)
-      table = TTY::Table.new(header: %w[ID Title Genre Duration], rows: movies.map do |m|
-                                                                          [m.id, m.title, m.genre, m.duration]
-                                                                        end)
+      table = TTY::Table.new(header: %w[ID Title Genre Duration], rows: movies.map { |m| [m.id, m.title, m.genre, m.duration] })
       puts table.render(:unicode)
     end
 
     def display_shows_table(shows)
       table = TTY::Table.new(header: ["ID", "Movie ID", "Show Time", "Capacity", "Available Seats"],
-                             rows: shows.map do |s|
-                                     [s.id, s.movie_id, s.show_time, s.total_capacity, s.available_seats]
-                                   end)
+                             rows: shows.map { |s| [s.id, s.movie_id, s.show_time, s.total_capacity, s.available_seats] })
       puts table.render(:unicode)
     end
 
@@ -260,6 +283,10 @@ module MovieBookingSystem
 
     def format_shows_for_prompt(shows)
       shows.map { |s| { name: "#{s.show_time} (#{s.id})", value: s.id } }
+    end
+
+    def format_users_for_prompt(users)
+      users.map { |u| { name: "#{u.name} (#{u.id})", value: u.id } }
     end
 
     def valid_time_format?(time_string)
