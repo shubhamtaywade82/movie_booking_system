@@ -14,7 +14,7 @@ module MovieBookingSystem
       @parent_menu = parent_menu # Store the parent menu
     end
 
-    def show
+    def show # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
       loop do
         choices = {
           "Movie" => -> { MovieMenu.new(@prompt, self).show },

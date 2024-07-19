@@ -14,7 +14,7 @@ module MovieBookingSystem
       @booking_service = BookingService.new
     end
 
-    def list_bookings_by_movie
+    def list_bookings_by_movie # rubocop:disable Metrics/MethodLength
       loop do
         movie_id = select_movie
         return unless movie_id

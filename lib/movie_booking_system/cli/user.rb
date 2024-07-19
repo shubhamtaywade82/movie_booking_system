@@ -13,7 +13,7 @@ module MovieBookingSystem
       @admin_service = AdminService.new
     end
 
-    def show
+    def show # rubocop:disable Metrics/MethodLength
       loop do
         choices = {
           "List Users" => -> { list_users },

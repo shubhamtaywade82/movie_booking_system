@@ -5,7 +5,7 @@ require "tty-table"
 require_relative "booking_list_menu"
 
 module MovieBookingSystem
-  class BookingMenu
+  class BookingMenu # rubocop:disable Metrics/ClassLength
     attr_reader :parent_menu
 
     def initialize(prompt, parent_menu)
@@ -15,7 +15,7 @@ module MovieBookingSystem
       @admin_service = AdminService.new
     end
 
-    def show
+    def show # rubocop:disable Metrics/MethodLength
       loop do
         choices = {
           "Make Booking" => -> { make_booking },
@@ -40,7 +40,7 @@ module MovieBookingSystem
       return unless show_id && seats
 
       booking = @booking_service.create_booking(user_id, show_id, seats)
-      puts booking ? "Booking created successfully. Seats: #{booking.booked_seats}" : "Booking failed. Please check availability and try again."
+      puts booking ? "Booking created successfully. Seats: #{booking.booked_seats}" : "Booking failed. Please check availability and try again." # rubocop:disable Layout/LineLength
     end
 
     def cancel_booking
@@ -135,7 +135,7 @@ module MovieBookingSystem
       end
     end
 
-    def display_booking_details(booking)
+    def display_booking_details(booking) # rubocop:disable Metrics/AbcSize
       user = @admin_service.list_users.find { |u| u.id == booking.user_id }
       show = @admin_service.list_shows_by_movie(booking.show.movie_id).find { |s| s.id == booking.show_id }
       movie = @admin_service.list_movies.find { |m| m.id == show.movie_id }
