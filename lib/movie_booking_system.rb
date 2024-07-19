@@ -11,8 +11,10 @@ require_relative "movie_booking_system/model/movie"
 require_relative "movie_booking_system/model/show"
 require_relative "movie_booking_system/model/booking"
 require_relative "movie_booking_system/model/user"
+require_relative "movie_booking_system/cli"
 require_relative "movie_booking_system/service/admin_service"
 require_relative "movie_booking_system/service/booking_service"
+require_relative "seeds"
 
 module MovieBookingSystem
   class Error < StandardError; end

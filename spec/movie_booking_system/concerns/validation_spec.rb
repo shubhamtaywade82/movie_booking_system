@@ -4,7 +4,6 @@ RSpec.describe MovieBookingSystem::Validation do # rubocop:disable RSpec/SpecFil
   let(:file_path) { "spec/tmp/test_validation.csv" }
 
   class UserTestModel < MovieBookingSystem::CSVModel # rubocop:disable RSpec/LeakyConstantDeclaration,Lint/ConstantDefinitionInBlock
-    field :id
     field :name, required: true, unique: true
     field :age, type: :integer
 

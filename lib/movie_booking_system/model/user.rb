@@ -2,7 +2,6 @@
 
 module MovieBookingSystem
   class User < CSVModel
-    field :id
     field :name, required: true
 
     has_many :bookings

@@ -9,6 +9,11 @@ module MovieBookingSystem
     class << self
       attr_reader :fields, :fields_options
 
+      def inherited(subclass)
+        super
+        subclass.field(:id)
+      end
+
       def field(name, options = {}) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
         @fields ||= []
         @fields << name

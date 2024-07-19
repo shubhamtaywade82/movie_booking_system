@@ -2,7 +2,6 @@
 
 module MovieBookingSystem
   class Show < CSVModel
-    field :id
     field :movie_id, type: :integer, required: true
     field :show_time, type: :time, required: true
     field :total_capacity, type: :integer, required: true
@@ -13,7 +12,7 @@ module MovieBookingSystem
 
     def initialize(attributes = {})
       super
-      initialize_available_seats
+      initialize_available_seats if attributes[:available_seats].nil?
     end
 
     def initialize_available_seats
@@ -27,7 +26,7 @@ module MovieBookingSystem
       self.available_seats = seats.join(",")
     end
 
-    def book_seats(seat_count)
+    def book_seats(seat_count) # rubocop:disable Metrics/MethodLength
       seats = available_seats.split(",")
       return nil if seats.size < seat_count
 
@@ -42,6 +41,13 @@ module MovieBookingSystem
       self.available_seats = (seats - booked_seats).join(",")
       save
       booked_seats
+    end
+
+    def cancel_seats(booked_seats)
+      current_seats = available_seats.split(",")
+      updated_seats = (current_seats + booked_seats).uniq
+      self.available_seats = updated_seats.join(",")
+      save
     end
   end
 end
