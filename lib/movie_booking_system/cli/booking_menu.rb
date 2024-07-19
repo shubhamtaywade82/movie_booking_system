@@ -137,11 +137,12 @@ module MovieBookingSystem
 
     def display_booking_details(booking)
       user = @admin_service.list_users.find { |u| u.id == booking.user_id }
-      show = @admin_service.list_shows_by_movie(booking.show_id).find { |s| s.id == booking.show_id }
+      show = @admin_service.list_shows_by_movie(booking.show.movie_id).find { |s| s.id == booking.show_id }
       movie = @admin_service.list_movies.find { |m| m.id == show.movie_id }
 
       table = TTY::Table.new(header: ["Booking ID", "User Name", "Movie Title", "Show Time", "Seats", "Booked Seats"],
-                             rows: [[booking.id, user.name, movie.title, show.show_time, booking.seats, booking.booked_seats]])
+                             rows: [[booking.id, user.name, movie.title, show.show_time, booking.seats,
+                                     booking.booked_seats]])
       puts table.render(:unicode)
     end
 
