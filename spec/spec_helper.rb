@@ -20,9 +20,9 @@ RSpec.configure do |config|
     clean_test_data
   end
 
-  # config.after(:suite) do
-  #   clean_test_data
-  # end
+  config.after(:suite) do
+    clean_test_data
+  end
 
   def clean_test_data
     data_directories = ["data", "spec/tmp"]

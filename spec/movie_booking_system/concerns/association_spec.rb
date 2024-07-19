@@ -8,7 +8,6 @@ RSpec.describe MovieBookingSystem::Association do # rubocop:disable RSpec/SpecFi
     # Define Author and Book in the `before` block
     # to ensure they're within the same scope as the association tests.
     class Author < MovieBookingSystem::CSVModel # rubocop:disable Lint/ConstantDefinitionInBlock,RSpec/LeakyConstantDeclaration
-      field :id
       field :name, required: true, unique: true
       field :genre
 
@@ -18,7 +17,6 @@ RSpec.describe MovieBookingSystem::Association do # rubocop:disable RSpec/SpecFi
     end
 
     class Book < MovieBookingSystem::CSVModel # rubocop:disable Lint/ConstantDefinitionInBlock,RSpec/LeakyConstantDeclaration
-      field :id
       field :author_id, type: :integer, required: true
       field :title, required: true
       field :publication_date, type: :date

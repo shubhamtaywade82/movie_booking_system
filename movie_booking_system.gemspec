@@ -36,5 +36,7 @@ Gem::Specification.new do |spec|
 
   # Register dependency of your gem
   # spec.add_dependency "example-gem", "~> 1.0"
+  spec.add_dependency "tty-prompt"
+  spec.add_dependency "tty-table"
   spec.metadata["rubygems_mfa_required"] = "true"
 end

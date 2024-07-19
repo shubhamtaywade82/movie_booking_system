@@ -17,7 +17,7 @@ module MovieBookingSystem
         end
       end
 
-      def has_many(association_name, options = {})
+      def has_many(association_name, options = {}) # rubocop:disable Naming/PredicateName
         define_method(association_name) do
           association_class = options[:class_name] || self.class.classify(association_name.to_s.singularize)
           foreign_key = options[:foreign_key] || :"#{self.class.name.split("::").last.underscore}_id"
@@ -27,7 +27,7 @@ module MovieBookingSystem
 
       # Helper method for string classification (similar to ActiveSupport's classify)
       def classify(string)
-        Object.const_get(string.split("_").collect(&:capitalize).join)
+        MovieBookingSystem.const_get(string.split("_").collect(&:capitalize).join)
       end
     end
   end
