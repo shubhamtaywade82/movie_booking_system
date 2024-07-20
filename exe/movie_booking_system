@@ -1,4 +1,7 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require "bundler/setup"
 require "movie_booking_system"
+
+MovieBookingSystem::CLI.new.start

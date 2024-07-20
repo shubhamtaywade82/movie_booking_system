@@ -1,24 +1,95 @@
 # MovieBookingSystem
 
-TODO: Delete this and the text below, and describe your gem
-
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/movie_booking_system`. To experiment with that code, run `bin/console` for an interactive prompt.
+A comprehensive movie booking system implemented in Ruby, using CSV for data storage. This gem provides functionalities for managing movies, shows, and bookings through an interactive CLI.
 
 ## Installation
 
-TODO: Replace `UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG` with your gem name right after releasing it to RubyGems.org. Please do not do it earlier due to security reasons. Alternatively, replace this section with instructions to install your gem from git if you don't plan to release to RubyGems.org.
-
 Install the gem and add to the application's Gemfile by executing:
 
-    $ bundle add UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+    $ bundle add movie_booking_system
 
 If bundler is not being used to manage dependencies, install the gem by executing:
 
-    $ gem install UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+    $ gem install movie_booking_system
 
 ## Usage
 
-TODO: Write usage instructions here
+To start using the movie booking system, you can initiate the CLI by running:
+
+```sh
+$ bin/console
+```
+
+This will open an interactive console where you can choose actions from the menu.
+
+### Admin Menu
+
+The Admin Menu provides options for managing movies and shows:
+
+- **List Movies**: List all movies in the system.
+- **Add Movie**: Add a new movie to the system.
+- **Update Movie**: Update an existing movie's details.
+- **Delete Movie**: Delete a movie from the system.
+- **List Shows (Select Movie)**: List all shows for a selected movie.
+- **Add Show (Select Movie)**: Add a new show for a selected movie.
+- **Show Bookings for Movie Show**: Show bookings for each movie show.
+
+### Booking Menu
+
+The Booking Menu provides options for managing bookings:
+
+- **Make Booking**: Make a new booking for a selected show.
+- **Cancel Booking**: Cancel an existing booking.
+
+## Example Workflow
+
+1. **Add a Movie**
+
+    ```sh
+    $ bin/console
+    Choose an action: Admin Menu
+    Admin Menu: Add Movie
+    Title: Inception
+    Genre: Sci-Fi
+    Duration (mins): 148
+    Movie added successfully.
+    ```
+
+2. **List Movies**
+
+    ```sh
+    Admin Menu: List Movies
+    1: Inception (Sci-Fi) - Duration: 148 mins
+    ```
+
+3. **Add a Show for the Movie**
+
+    ```sh
+    Admin Menu: Add Show (Select Movie)
+    Select a movie: Inception (1)
+    Show Time (HH:MM): 20:00
+    Total Capacity: 100
+    Show added successfully.
+    ```
+
+4. **Make a Booking**
+
+    ```sh
+    Booking Menu: Make Booking
+    User ID: 1
+    Select a movie: Inception (1)
+    Select a show: 20:00 (1)
+    Number of seats: 2
+    Booking created successfully. Seats: A1, A2
+    ```
+
+5. **Cancel a Booking**
+
+    ```sh
+    Booking Menu: Cancel Booking
+    Select a booking to cancel: Booking #1: Show ID 1, Seats 2
+    Booking cancelled successfully.
+    ```
 
 ## Development
 
@@ -28,7 +99,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/movie_booking_system. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/[USERNAME]/movie_booking_system/blob/master/CODE_OF_CONDUCT.md).
+Bug reports and pull requests are welcome on GitHub at https://github.com/shubhamtaywade82/movie_booking_system. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/shubhamtaywade82/movie_booking_system/blob/master/CODE_OF_CONDUCT.md).
 
 ## License
 
@@ -36,4 +107,7 @@ The gem is available as open source under the terms of the [MIT License](https:/
 
 ## Code of Conduct
 
-Everyone interacting in the MovieBookingSystem project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/movie_booking_system/blob/master/CODE_OF_CONDUCT.md).
+Everyone interacting in the MovieBookingSystem project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/shubhamtaywade82/movie_booking_system/blob/master/CODE_OF_CONDUCT.md).
+```
+
+This `README.md` file provides a comprehensive overview of the gem's functionality, installation instructions, usage examples, and information on contributing to the project. It covers the main features, including the Admin and Booking menus, and provides a step-by-step example workflow for common tasks.
