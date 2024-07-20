@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 RSpec.describe MovieBookingSystem::CSVModel do # rubocop:disable RSpec/SpecFilePathFormat
-  let(:file_path) { "spec/tmp/test_model_data.csv" }
   let(:attributes) { { title: "Inception", genre: "Sci-Fi", duration: 148 } }
 
   class TestModel < described_class # rubocop:disable Lint/ConstantDefinitionInBlock,RSpec/LeakyConstantDeclaration
@@ -9,7 +8,7 @@ RSpec.describe MovieBookingSystem::CSVModel do # rubocop:disable RSpec/SpecFileP
     field :genre
     field :duration, type: :integer
 
-    csv_filename file_path
+    csv_filename "spec/tmp/test_model_data.csv"
   end
 
   describe ".create" do

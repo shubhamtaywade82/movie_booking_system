@@ -1,18 +1,12 @@
 # frozen_string_literal: true
 
 RSpec.describe MovieBookingSystem::Validation do # rubocop:disable RSpec/SpecFilePathFormat
-  let(:file_path) { "spec/tmp/test_validation.csv" }
-
   class UserTestModel < MovieBookingSystem::CSVModel # rubocop:disable RSpec/LeakyConstantDeclaration,Lint/ConstantDefinitionInBlock
     field :name, required: true, unique: true
     field :age, type: :integer
 
-    csv_filename file_path
+    csv_filename "spec/tmp/test_validation.csv"
   end
-
-  # after do
-  #   FileUtils.rm_f(file_path)
-  # end
 
   context "when attributes are valid" do
     let(:valid_attributes) { { name: "John Doe", age: 30 } }

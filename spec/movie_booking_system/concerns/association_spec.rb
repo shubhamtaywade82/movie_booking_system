@@ -27,11 +27,6 @@ RSpec.describe MovieBookingSystem::Association do # rubocop:disable RSpec/SpecFi
     end
   end
 
-  after do
-    FileUtils.rm_f("spec/tmp/authors.csv")
-    FileUtils.rm_f("spec/tmp/books.csv")
-  end
-
   describe ".belongs_to" do
     it "establishes a belongs_to association" do
       author = Author.create(name: "J.K. Rowling", genre: "Fantasy")

@@ -6,14 +6,6 @@ RSpec.describe MovieBookingSystem::CSVHandler do # rubocop:disable RSpec/SpecFil
   let(:file_path) { "spec/tmp/test_data.csv" }
   let(:headers) { %i[id title genre duration] }
 
-  # before do
-  #   FileUtils.rm_f(file_path)
-  # end
-
-  # after do
-  #   FileUtils.rm_f(file_path)
-  # end
-
   shared_examples "csv data operations" do
     it "writes rows to the CSV" do
       data.each { |row| csv_handler.write_row(row) }
