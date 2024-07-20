@@ -6,6 +6,7 @@ require_relative "cli/admin_menu"
 require_relative "cli/booking_menu"
 
 module MovieBookingSystem
+  # CLI class handles the command-line interface for the movie booking system
   class CLI
     SEPARATOR = "-----------------------------"
 
@@ -14,6 +15,7 @@ module MovieBookingSystem
       @last_action_was_separator = false
     end
 
+    # Starts the CLI
     def start
       loop do
         main_menu
@@ -24,9 +26,9 @@ module MovieBookingSystem
 
     def main_menu
       choices = {
-        "Admin Menu" => -> { AdminMenu.new(@prompt, self).show },
-        "Booking Menu" => -> { BookingMenu.new(@prompt, self).show },
-        "Exit" => -> { exit }
+        "Admin Menu": -> { AdminMenu.new(@prompt, self).show },
+        "Booking Menu": -> { BookingMenu.new(@prompt, self).show },
+        Exit: -> { exit }
       }
 
       action = @prompt.select("Welcome to the Movie Booking System. Please choose an action:", choices, filter: true)

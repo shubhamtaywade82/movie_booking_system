@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module MovieBookingSystem
-  class Booking < CSVModel
+  class Booking < BaseModel
     field :user_id, type: :integer, required: true
     field :show_id, type: :integer, required: true
     field :seats, type: :integer, required: true

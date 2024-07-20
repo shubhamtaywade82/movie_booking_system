@@ -4,25 +4,23 @@ require "tty-prompt"
 require "tty-table"
 
 module MovieBookingSystem
+  # UserMenu class handles the user-related actions
   class UserMenu
     attr_reader :parent_menu
 
+    # Initializes the UserMenu
+    # @param prompt [TTY::Prompt] the TTY prompt instance
+    # @param parent_menu [Object] the parent menu
     def initialize(prompt, parent_menu)
       @prompt = prompt
       @parent_menu = parent_menu
       @admin_service = AdminService.new
     end
 
-    def show # rubocop:disable Metrics/MethodLength
+    # Shows the user menu
+    def show
       loop do
-        choices = {
-          "List Users" => -> { list_users },
-          "Add User" => -> { add_user },
-          "Update User" => -> { update_user },
-          "Delete User" => -> { delete_user },
-          "Back" => -> { parent_menu.show }
-        }
-
+        display_choices
         action = @prompt.select("User Menu: Please choose an action:", choices, filter: true)
         action&.call
       rescue TTY::Reader::InputInterrupt
@@ -32,13 +30,19 @@ module MovieBookingSystem
 
     private
 
+    def display_choices
+      @choices = {
+        "List Users": -> { list_users },
+        "Add User": -> { add_user },
+        "Update User": -> { update_user },
+        "Delete User": -> { delete_user },
+        Back: -> { parent_menu.show }
+      }
+    end
+
     def list_users
       users = @admin_service.list_users
-      if users.any?
-        display_users_table(users)
-      else
-        puts "No users available."
-      end
+      users.any? ? display_users_table(users) : puts("No users available.")
     end
 
     def add_user
@@ -66,7 +70,7 @@ module MovieBookingSystem
 
     def select_user
       users = @admin_service.list_users
-      return @prompt.select("Select a user from the list:", format_users_for_prompt(users)) if users.any?
+      return @prompt.select("Select a user from the list:", format_users_for_prompt(users), filter: true) if users.any?
 
       puts "No users available."
       nil
@@ -80,5 +84,7 @@ module MovieBookingSystem
       table = TTY::Table.new(header: %w[ID Name], rows: users.map { |u| [u.id, u.name] })
       puts table.render(:unicode)
     end
+
+    attr_reader :choices
   end
 end

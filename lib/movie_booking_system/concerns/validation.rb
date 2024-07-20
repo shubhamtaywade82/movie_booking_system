@@ -71,17 +71,21 @@ module MovieBookingSystem
       end
     end
 
-    def validate_type # rubocop:disable Metrics/CyclomaticComplexity,Metrics/MethodLength
+    def validate_type
       self.class.typed_fields.each do |field, type|
         value = send(field)
-        case type
-        when :integer
-          @errors << "#{field} must be an integer" unless value.is_a?(Integer)
-        when :date
-          @errors << "#{field} must be a date" unless value.is_a?(Date)
-        when :time
-          @errors << "#{field} must be a time" unless value.is_a?(Time)
-        end
+        validate_field_type(field, type, value)
+      end
+    end
+
+    def validate_field_type(field, type, value)
+      case type
+      when :integer
+        @errors << "#{field} must be an integer" unless value.is_a?(Integer)
+      when :date
+        @errors << "#{field} must be a date" unless value.is_a?(Date)
+      when :time
+        @errors << "#{field} must be a time" unless value.is_a?(Time)
       end
     end
   end

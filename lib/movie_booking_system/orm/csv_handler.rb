@@ -70,10 +70,14 @@ module MovieBookingSystem
 
     def parse_value(value)
       case value
-      when /^\d+$/ then value.to_i
-      when /^\d{4}-\d{2}-\d{2}$/ then Date.parse(value)
-      when /^\d{2}:\d{2}$/ then Time.parse(value)
-      else value
+      when /^\d+$/
+        value.to_i
+      when /^\d{4}-\d{2}-\d{2}$/
+        Date.parse(value)
+      when /^\d{2}:\d{2}$/
+        Time.parse(value)
+      else
+        value
       end
     end
   end

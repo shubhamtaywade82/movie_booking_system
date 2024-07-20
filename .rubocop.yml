@@ -17,6 +17,9 @@ Style/StringLiteralsInInterpolation:
 Style/Documentation:
   Enabled: false
 
+Naming/PredicateName:
+  AllowedMethods: ["has_many"]
+
 # RSpec
 RSpec/MultipleExpectations:
   Max: 10

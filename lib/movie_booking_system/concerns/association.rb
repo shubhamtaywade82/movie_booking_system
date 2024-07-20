@@ -17,7 +17,7 @@ module MovieBookingSystem
         end
       end
 
-      def has_many(association_name, options = {}) # rubocop:disable Naming/PredicateName
+      def has_many(association_name, options = {})
         define_method(association_name) do
           association_class = options[:class_name] || self.class.classify(association_name.to_s.singularize)
           foreign_key = options[:foreign_key] || :"#{self.class.name.split("::").last.underscore}_id"

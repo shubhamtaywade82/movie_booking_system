@@ -25,11 +25,11 @@ RSpec.configure do |config|
   end
 
   def clean_test_data
-    data_directories = ["data", "spec/tmp"]
+    data_directories = ["spec/tmp"]
     data_directories.each do |dir|
       Dir.foreach(dir) do |file|
         file_path = File.join(dir, file)
-        FileUtils.rm_f(file_path) if File.file?(file_path)
+        FileUtils.rm_f(file_path) if File.file?(file_path) && File.extname(file) == ".csv"
       end
     end
   end
